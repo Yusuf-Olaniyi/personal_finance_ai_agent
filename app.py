@@ -1,6 +1,7 @@
 import asyncio
 import os
 from pathlib import Path
+import logging
 
 import pandas as pd
 import streamlit as st
@@ -11,6 +12,8 @@ from finance_coach.data.csv_parser import CSVError, parse_expense_csv
 from finance_coach.data.inputs import DEBT_COLS, df_to_debts, df_to_expenses
 from finance_coach.ui.results import rwf, show_budget, show_debt, show_savings
 from finance_coach.ui.theme import inject_css
+from finance_coach.config import MAX_CATEGORIES, MAX_DEBTS, model_name
+from finance_coach.guard import UsageGuard
 
 ASSETS = Path(__file__).parent / "assets"
 
@@ -18,24 +21,27 @@ st.set_page_config(page_title="AI Financial Coach", page_icon="💰", layout="wi
 inject_css()
 
 # ------------------------------------------------------------------ sidebar
+@st.cache_resource
+def get_guard() -> UsageGuard:
+    # cache_resource is shared by all visitors in the server process
+    return UsageGuard(
+        daily_cap=int(os.getenv("DEMO_DAILY_CAP", "100")),
+        cooldown_s=int(os.getenv("DEMO_COOLDOWN_SECONDS", "30")),
+    )
+
+
+api_key = os.getenv("GROQ_API_KEY")  # server-side only; never displayed
+
 with st.sidebar:
-    st.markdown("### 🔑 Your AI key")
-    user_key = st.text_input(
-        "Groq API key", type="password", placeholder="gsk_...",
-        help="Get a free key at console.groq.com. It is used only for your analysis "
-             "in this session and is not saved by this app.")
-    api_key = user_key.strip() or os.getenv("GROQ_API_KEY")
-    if api_key:
-        st.success("Key ready")
-    else:
-        st.info("Paste a free Groq key to run the analysis.")
+    st.markdown("### ℹ️ About this demo")
+    st.caption("A free demo on a shared AI quota. Analyses run one at a time "
+               "and a daily limit applies, so if it's busy, try again in a minute.")
     st.caption(f"Model: {model_name()}")
     st.divider()
     st.markdown("### 📄 CSV template")
     st.markdown("Columns: **Date**, **Category**, **Amount**. Several months are fine.")
     st.download_button("Download sample CSV", (ASSETS / "sample_expenses.csv").read_bytes(),
                        file_name="expense_template.csv", mime="text/csv")
-
 # --------------------------------------------------------------------- hero
 st.markdown(
     '<div class="hero"><h1>💰 AI Financial Coach</h1>'
@@ -114,22 +120,36 @@ if income <= 0:
 if not expenses:
     problems.append("Add at least one expense.")
 if not api_key:
-    problems.append("Paste your Groq API key in the sidebar.")
+    problems.append("This demo is not configured yet: the server has no AI key.")
+if len(expenses) > MAX_CATEGORIES:
+    problems.append(f"Please use at most {MAX_CATEGORIES} expense categories.")
+if len(debts) > MAX_DEBTS:
+    problems.append(f"Please enter at most {MAX_DEBTS} debts.")
+if any(len(c) > 60 for c in expenses):
+    problems.append("Category names must be 60 characters or fewer.")
 
 for p in problems:
     st.warning(p)
 
 # ----------------------------------------------------------------- analysis
 if st.button("Analyse my finances", type="primary", disabled=bool(problems)):
-    advisor = FinanceAdvisor(api_key=api_key)  # fresh per run: avoids closed-event-loop issues
-    try:
-        with st.spinner("The agents are working (this can take a minute)..."):
-            st.session_state["result"] = asyncio.run(advisor.analyze(
-                monthly_income=int(income), expenses=expenses, debts=debts,
-                monthly_debt_budget=int(debt_budget), current_savings=int(savings_now)))
-    except Exception as e:
-        st.session_state.pop("result", None)
-        st.error(f"Analysis failed: {type(e).__name__}")
+    guard = get_guard()
+    ok, message = guard.try_start()
+    if not ok:
+        st.warning(message)
+    else:
+        try:
+            advisor = FinanceAdvisor(api_key=api_key)  # fresh per run: avoids closed-event-loop issues
+            with st.spinner("The agents are working (this can take a minute)..."):
+                st.session_state["result"] = asyncio.run(advisor.analyze(
+                    monthly_income=int(income), expenses=expenses, debts=debts,
+                    monthly_debt_budget=int(debt_budget), current_savings=int(savings_now)))
+        except Exception as e:
+            logging.exception("Analysis failed")
+            st.session_state.pop("result", None)
+            st.error(f"Analysis failed ({type(e).__name__}). Please try again.")
+        finally:
+            guard.finish()   # always release the slot, even on errors
 
 # ------------------------------------------------------------------ results
 res = st.session_state.get("result")

@@ -7,6 +7,7 @@ toolbarMode = "minimal"
 
 [server]
 headless = true
+maxUploadSize = 1
 
 [browser]
 gatherUsageStats = false

@@ -7,6 +7,8 @@ load_dotenv()  # finds .env by walking up from this file to the project root
 APP_NAME = "finance_coach"
 USER_ID = "local_user"
 DEFAULT_MODEL = "groq/openai/gpt-oss-120b"
+MAX_CATEGORIES = 30
+MAX_DEBTS = 10
 
 
 def model_name() -> str:

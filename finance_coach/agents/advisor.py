@@ -1,6 +1,7 @@
 import json
 import uuid
 from typing import Dict, List, Optional
+import logging
 
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.models.lite_llm import LiteLlm
@@ -18,6 +19,7 @@ from finance_coach.schemas import (
     EmergencyFund, SavingsStrategy, SpendingCategory,
 )
 
+log = logging.getLogger(__name__)
 
 def make_model(api_key: Optional[str] = None):
     kwargs = dict(
@@ -43,14 +45,15 @@ def _coerce(value, model: type[BaseModel]) -> Optional[BaseModel]:
         return None
 
 def _friendly(msg: str) -> str:
+    log.error("Pipeline error: %s", msg)   # full detail stays in the server log
     low = msg.lower()
     if "ratelimit" in low or "rate limit" in low:
-        return "The AI provider's rate limit was reached. Wait about a minute and try again."
+        return "The AI provider's rate limit was reached (the shared quota is busy). Wait about a minute and try again."
     if "json_validate_failed" in low:
         return "The model returned malformed output for one step."
     if "authentication" in low or "invalid api key" in low or "401" in low:
-        return "The API key was rejected. Check that you pasted a valid Groq key."
-    return f"Unexpected error: {msg[:200]}"
+        return "The demo's AI connection is misconfigured. Please try again later."
+    return "An unexpected error occurred while generating advice."
 
 
 class FinanceAdvisor:

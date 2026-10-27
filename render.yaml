@@ -8,3 +8,9 @@ services:
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.7
+      - key: GROQ_API_KEY
+        sync: false
+      - key: DEMO_DAILY_CAP
+        value: "100"
+      - key: DEMO_COOLDOWN_SECONDS
+        value: "30"
