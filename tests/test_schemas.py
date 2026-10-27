@@ -1,6 +1,6 @@
 import pytest
 from pydantic import ValidationError
-from schemas import BudgetAnalysis, Debt, DebtReduction
+from finance_coach.schemas import BudgetAnalysis, Debt, DebtReduction
 
 
 def test_money_coerces_messy_llm_output():

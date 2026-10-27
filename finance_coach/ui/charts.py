@@ -1,7 +1,7 @@
 import plotly.express as px
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from schemas import BudgetAnalysis, DebtReduction
+from finance_coach.schemas import BudgetAnalysis, DebtReduction
 
 
 def spending_pie(budget: BudgetAnalysis) -> go.Figure:

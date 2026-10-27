@@ -1,5 +1,5 @@
-from checks import run_checks, CHECK_NAMES, ungrounded_numbers
-from schemas import (BudgetAnalysis, SpendingCategory, SpendingRecommendation, SavingsStrategy,
+from evals.checks import run_checks, CHECK_NAMES, ungrounded_numbers
+from finance_coach.schemas import (BudgetAnalysis, SpendingCategory, SpendingRecommendation, SavingsStrategy,
                      EmergencyFund, SavingsRecommendation, DebtReduction, PayoffPlans, PayoffPlan,
                      DebtRecommendation,AutomationTechnique)
 

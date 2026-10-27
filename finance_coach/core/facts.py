@@ -1,5 +1,5 @@
 from typing import Dict, List
-from schemas import Debt, SpendingCategory
+from finance_coach.schemas import Debt, SpendingCategory
 
 
 def compute_facts(

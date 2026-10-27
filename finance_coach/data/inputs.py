@@ -1,6 +1,6 @@
 import pandas as pd
 from pydantic import ValidationError
-from schemas import Debt
+from finance_coach.schemas import Debt
 
 EXPENSE_COLS = ["Category", "Amount (RWF)"]
 DEBT_COLS = ["Name", "Balance (RWF)", "Interest rate (% / year)", "Min payment (RWF)"]

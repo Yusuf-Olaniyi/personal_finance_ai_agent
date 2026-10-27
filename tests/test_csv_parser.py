@@ -1,5 +1,5 @@
 import pytest
-from csv_parser import parse_expense_csv, CSVError
+from finance_coach.data.csv_parser import parse_expense_csv, CSVError
 
 
 def test_messy_amounts_and_monthly_average():

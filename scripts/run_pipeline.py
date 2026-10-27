@@ -1,6 +1,6 @@
 import asyncio
-from agents import FinanceAdvisor
-from schemas import Debt
+from finance_coach.agents.advisor import FinanceAdvisor
+from finance_coach.schemas import Debt
 
 
 async def main():

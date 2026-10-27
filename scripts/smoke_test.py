@@ -6,6 +6,8 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
+from finance_coach.agents.advisor import make_model
+
 load_dotenv()
 
 def check_config():
@@ -13,10 +15,7 @@ def check_config():
         sys.exit("FAIL: GROQ_API_KEY is not set (check your .env file)")
 
 async def run_smoke():
-    model = LiteLlm(
-            model=os.getenv("LLM_MODEL", "groq/openai/gpt-oss-120b"),
-            reasoning_effort="low",
-            include_reasoning=False,)
+    model = make_model()
     agent = LlmAgent(name="PingAgent", model=model,
                      instruction="Reply with one short friendly sentence.")
     svc = InMemorySessionService()

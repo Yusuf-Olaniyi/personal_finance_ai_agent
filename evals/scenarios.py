@@ -1,4 +1,4 @@
-from schemas import Debt
+from finance_coach.schemas import Debt
 
 SCENARIOS = [
     {

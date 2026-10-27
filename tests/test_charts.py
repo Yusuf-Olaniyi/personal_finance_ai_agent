@@ -1,5 +1,5 @@
-from charts import spending_pie, income_vs_expenses
-from schemas import BudgetAnalysis, SpendingCategory
+from finance_coach.ui.charts import spending_pie, income_vs_expenses
+from finance_coach.schemas import BudgetAnalysis, SpendingCategory
 
 
 def test_pie_has_one_slice_per_category():

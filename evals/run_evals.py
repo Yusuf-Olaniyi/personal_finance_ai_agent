@@ -4,11 +4,11 @@ import os
 import sys
 from collections import defaultdict
 
-from agents import FinanceAdvisor
-from checks import CHECK_NAMES, Check, run_checks
-from scenarios import SCENARIOS
+from finance_coach.agents.advisor import FinanceAdvisor
+from evals.checks import CHECK_NAMES, Check, run_checks
+from evals.scenarios import SCENARIOS
 
-from checks import CHECK_NAMES, Check, run_checks, ungrounded_numbers
+from evals.checks import CHECK_NAMES, Check, run_checks, ungrounded_numbers
 
 DELAY = float(os.getenv("EVAL_DELAY", "60"))      # free tier: about 1 pipeline run per minute
 THRESHOLD = float(os.getenv("EVAL_THRESHOLD", "0.9"))

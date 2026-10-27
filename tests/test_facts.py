@@ -1,4 +1,4 @@
-from facts import compute_facts
+from finance_coach.core.facts import compute_facts
 
 
 def test_basic_facts():

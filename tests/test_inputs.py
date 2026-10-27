@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from inputs import df_to_expenses, df_to_debts
+from finance_coach.data.inputs import df_to_expenses, df_to_debts
 
 
 def test_expenses_merge_and_skip_blanks():

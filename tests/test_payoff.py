@@ -1,6 +1,6 @@
 import pytest
-from schemas import Debt
-from payoff import simulate_payoff, build_payoff_plans
+from finance_coach.schemas import Debt
+from finance_coach.core.payoff import simulate_payoff, build_payoff_plans
 
 
 def test_zero_interest_is_simple_division():

@@ -1,5 +1,5 @@
 from typing import List
-from schemas import Debt, PayoffPlan, PayoffPlans
+from finance_coach.schemas import Debt, PayoffPlan, PayoffPlans
 
 MAX_MONTHS = 600  # 50 years; beyond this we treat the debt as unpayable
 
