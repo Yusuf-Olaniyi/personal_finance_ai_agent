@@ -1,26 +1,25 @@
 import asyncio
+import logging
 import os
 from pathlib import Path
-import logging
 
 import pandas as pd
 import streamlit as st
 
 from finance_coach.agents.advisor import FinanceAdvisor
-from finance_coach.config import model_name
+from finance_coach.config import MAX_CATEGORIES, MAX_DEBTS, model_name
 from finance_coach.data.csv_parser import CSVError, parse_expense_csv
 from finance_coach.data.inputs import DEBT_COLS, df_to_debts, df_to_expenses
+from finance_coach.guard import UsageGuard
 from finance_coach.ui.results import rwf, show_budget, show_debt, show_savings
 from finance_coach.ui.theme import inject_css
-from finance_coach.config import MAX_CATEGORIES, MAX_DEBTS, model_name
-from finance_coach.guard import UsageGuard
 
 ASSETS = Path(__file__).parent / "assets"
 
 st.set_page_config(page_title="AI Financial Coach", page_icon="💰", layout="wide")
 inject_css()
 
-# ------------------------------------------------------------------ sidebar
+
 @st.cache_resource
 def get_guard() -> UsageGuard:
     # cache_resource is shared by all visitors in the server process
@@ -31,9 +30,8 @@ def get_guard() -> UsageGuard:
 
 
 api_key = os.getenv("GROQ_API_KEY")  # server-side only; never displayed
-# TEMPORARY DEBUG: remove after fixing
-st.sidebar.caption(f"debug: GROQ vars = {[repr(k) for k in os.environ if 'GROQ' in k.upper()]}, "
-                   f"key length = {len(api_key or '')}")
+
+# ------------------------------------------------------------------ sidebar
 with st.sidebar:
     st.markdown("### ℹ️ About this demo")
     st.caption("A free demo on a shared AI quota. Analyses run one at a time "
@@ -44,6 +42,12 @@ with st.sidebar:
     st.markdown("Columns: **Date**, **Category**, **Amount**. Several months are fine.")
     st.download_button("Download sample CSV", (ASSETS / "sample_expenses.csv").read_bytes(),
                        file_name="expense_template.csv", mime="text/csv")
+    # TEMPORARY DEBUG: remove once the key problem is fixed
+    st.caption(
+        f"debug: on_render={bool(os.getenv('RENDER'))}, "
+        f"GROQ vars={[repr(k) for k in os.environ if 'GROQ' in k.upper()]}, "
+        f"key length={len(api_key or '')}")
+    
 # --------------------------------------------------------------------- hero
 st.markdown(
     '<div class="hero"><h1>💰 AI Financial Coach</h1>'
