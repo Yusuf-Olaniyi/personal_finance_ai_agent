@@ -31,7 +31,9 @@ def get_guard() -> UsageGuard:
 
 
 api_key = os.getenv("GROQ_API_KEY")  # server-side only; never displayed
-
+# TEMPORARY DEBUG: remove after fixing
+st.sidebar.caption(f"debug: GROQ vars = {[repr(k) for k in os.environ if 'GROQ' in k.upper()]}, "
+                   f"key length = {len(api_key or '')}")
 with st.sidebar:
     st.markdown("### ℹ️ About this demo")
     st.caption("A free demo on a shared AI quota. Analyses run one at a time "
@@ -117,6 +119,7 @@ if debts:
 
 if income <= 0:
     problems.append("Enter your monthly income.")
+
 if not expenses:
     problems.append("Add at least one expense.")
 if not api_key:
